@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+
+</head>
+
+<body>
+  <div id="app">
+      <h1>同学录</h1>
+      <div class="head">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <el-input v-model="userInfoL.name" placeholder="请输入姓名"></el-input>
+          </el-col>
+          <el-col :span="6">
+            <el-input v-model="userInfoL.gender" placeholder="请输入性别"></el-input>
+          </el-col>
+          <el-col :span="6">
+            <el-input v-model="userInfoL.phoneNum" placeholder="请输入电话"></el-input>
+          </el-col>
+          <el-col :span="6">
+            <el-date-picker
+            v-model="userInfoL.birthday"
+            type="date"
+            placeholder="选择日期"
+            format="yyyy 年 MM 月 dd 日"
+            value-format="yyyy-MM-dd"
+            >
+          </el-date-picker>
+          </el-col>
+        </el-row>
+      </div>
+      <el-button type="success" class="button-name" @click='add'>添加按钮</el-button>
+      <!-- <el-button type="success" class="button-name" @click='cx'>查询数据</el-button> -->
+     <div class="body">
+        <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          label="序号"
+          width="180">
+          <template slot-scope="scope">
+            {{scope.$index +1}}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="姓名"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="gender"
+          label="性别">
+        </el-table-column>
+        <el-table-column
+        prop="phoneNum"
+        label="电话">
+       </el-table-column>
+       <el-table-column
+       prop="birthday"
+       label="日期">
+       </el-table-column>
+       <el-table-column
+       prop="birthday"
+       label="操作">
+       <template slot-scope="scope">
+        <el-button type="primary" icon="el-icon-edit" circle @click="bj(scope.row ,scope.$index)"></el-button>
+        <el-button type="danger" icon="el-icon-delete" circle @click="dange(scope.$index)"></el-button>
+        </template>
+        </el-table-column>
+        </el-table>
+       <el-dialog
+       title="编辑用户信息"
+       :visible.sync="dialogVisible"
+       width="40%"
+       :before-close="handleClose">
+      <div>
+        <el-form ref="form" :model="form" label-width="40px">
+          <el-form-item label="姓名">
+            <el-input v-model="form.name"></el-input>
+          </el-form-item>
+            <el-form-item label="性别">
+              <el-input v-model="form.gender"></el-input>
+            </el-form-item>
+            <el-form-item label="电话">
+              <el-input v-model="form.phoneNum"></el-input>
+            </el-form-item>
+            <el-form-item label="日期">
+              <el-date-picker
+              v-model="form.birthday"
+              type="date"
+              placeholder="选择日期"
+              format="yyyy 年 MM 月 dd 日"
+              value-format="yyyy-MM-dd"
+              >
+            </el-form-item>
+        </el-form>
+
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="tj">确 定</el-button>
+      </span>
+    </el-dialog>
+    </div>
+    <div style="background: red; width: 1000px; height: 500px;  margin: 0 auto; margin-top: 50px;"  >
+      <div v-for='(items,index) in tableData' :key="index" >
+        <div></div>
+        {{items.name}}---{{items.gender}}---{{items.phoneNum}}---{{items.birthday}}
+      </div>
+    </div>
+  </div>
+  </div>
+</body>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+  const vm = new Vue({
+    el: '#app',
+    data: function () {
+      return {
+        arr:[5,6,7],
+        dialogVisible:false, //编辑对话框
+        userInfoL:{
+          name:'',
+          gender:'',
+          phoneNum:'',
+          birthday:''
+        },
+        name:'王小小',
+        tableData: [{
+            name:'王小小',
+            gender:'男生',
+            phoneNum:'1311153788',
+            birthday:'2020-12-09'
+          }],
+          table: [{
+            name:'王小小',
+            gender:'男生',
+            phoneNum:'1311153788',
+            birthday:'2020-12-09'
+          }],
+          form:{
+          name:'',
+          gender:'',
+          phoneNum:'',
+          birthday:''
+          },
+          userIndex:0  //做下编辑的记录
+
+
+
+      }
+    },
+    created() {
+    },
+    methods: {
+      // 添加数据
+      add(){
+        if(!this.userInfoL.name){
+          this.$message({
+          showClose: true,
+          message: '请输入姓名',
+          type: 'warning'
+        });
+         return false;
+        }
+        if(!this.userInfoL.gender){
+          this.$message({
+          showClose: true,
+          message: '请输入性别',
+          type: 'warning'
+        });
+         return false;
+        }
+ 
+        if(!this.userInfoL.phoneNum){
+          this.$message({
+          showClose: true,
+          message: '请输入电话号码',
+          type: 'warning'
+        });
+         return false;
+        }
+        // 校验手机号
+        if(!/^1[3456789]\d{9}/.test(this.userInfoL.phoneNum)){
+          this.$message({
+          showClose: true,
+          message: '电话号码格式不对',
+          type: 'warning'
+        });
+         return false;
+        }
+        if(!this.userInfoL.birthday){
+          this.$message({
+          showClose: true,
+          message: '请输入日期',
+          type: 'warning'
+        });
+         return false;
+        }
+        //列表数据 pust 到输入框里面
+        this.tableData.push(this.userInfoL)
+        
+        // 清空
+        this.userInfoL = {
+          name:'',
+          gender:'',
+          phoneNum:'',
+          birthday:''
+        }
+      },
+
+      // 删除
+      dange(index){
+        console.log(index)
+        this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.tableData.splice(index,1)
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+      
+      
+      },
+
+      // 编辑用户信息
+      bj(item, index){
+        this.userIndex = index;   // 点击事件传的 scope.$index   //  index自己定义
+        console.log(item)
+        this.form = {
+            name:item.name,
+            gender:item.gender,
+            phoneNum:item.phoneNum,
+            birthday:item.birthday
+        }
+        this.dialogVisible = true
+      },
+      tj(){
+        this.dialogVisible = false
+        Vue.set(this.tableData,this.userIndex,this.form)
+      },
+  
+
+      handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+      }
+    },
+  })
+</script>
+<style>
+#app{
+  width: 1024px;
+  margin: 0 auto;
+}
+.button-name{
+  margin-top: 20px;
+  width: 100%;
+}
+.body{
+  margin-top: 20px;
+}
+</style>
+
+</html>
